@@ -1,0 +1,10 @@
+Flask
+torch
+opencv-python
+ultralytics
+scikit-image
+filterpy
+easyocr
+fastapi[standard]
+pygame
+pyav
