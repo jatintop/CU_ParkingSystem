@@ -37,29 +37,68 @@
         background-color: var(--background-color);
         color: var(--text-primary);
         line-height: 1.6;
+        min-height: 100vh;
       }
 
       .container {
         max-width: 1280px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
+        width: 100%;
       }
 
       .header {
         background-color: var(--card-background);
-        padding: 1.5rem;
+        padding: 1.25rem;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-sm);
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .university-logo {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 8px;
+        background-color: #f8fafc;
+        padding: 4px;
+        border: 2px solid #e2e8f0;
+        flex-shrink: 0;
+      }
+
+      .header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
       }
 
       .header h1 {
         color: var(--text-primary);
-        font-size: 1.5rem;
+        font-size: clamp(1.25rem, 4vw, 1.5rem);
         font-weight: 600;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .university-name {
+        color: var(--primary-color);
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
+        font-weight: 500;
+        margin: 0;
+        font-style: italic;
       }
 
       .header .status {
@@ -68,6 +107,7 @@
         gap: 0.5rem;
         color: var(--success-color);
         font-weight: 500;
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
       }
 
       .header .status i {
@@ -76,63 +116,118 @@
 
       .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
-      .stat-card {
+      .vehicle-card {
         background: var(--card-background);
         padding: 1.5rem;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-sm);
         transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
       }
 
-      .stat-card:hover {
+      .vehicle-card:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
       }
 
-      .stat-card .icon {
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .vehicle-card .icon {
         width: 48px;
         height: 48px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1rem;
+        flex-shrink: 0;
       }
 
-      .stat-card .icon i {
+      .vehicle-card .icon i {
         font-size: 1.5rem;
         color: white;
       }
 
-      .stat-card .icon.cars { background-color: var(--primary-color); }
-      .stat-card .icon.bikes { background-color: var(--success-color); }
-      .stat-card .icon.filled { background-color: var(--warning-color); }
-      .stat-card .icon.free { background-color: var(--secondary-color); }
+      .vehicle-card .icon.cars { background-color: var(--primary-color); }
+      .vehicle-card .icon.bikes { background-color: var(--success-color); }
 
-      .stat-card h3 {
-        font-size: 0.875rem;
+      .card-header h3 {
+        font-size: clamp(1rem, 3vw, 1.25rem);
+        color: var(--text-primary);
+        font-weight: 600;
+        flex: 1;
+      }
+
+      .card-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .stat-row:last-child {
+        border-bottom: 2px solid var(--primary-color);
+        font-weight: 600;
+      }
+
+      .stat-label {
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
         color: var(--text-secondary);
-        margin-bottom: 0.5rem;
         font-weight: 500;
       }
 
-      .stat-card .count {
-        font-size: 2rem;
-        font-weight: 700;
+      .stat-value {
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
         color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .card-progress {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .progress-fill.car-progress {
+        background: linear-gradient(90deg, var(--primary-color), #3b82f6);
+      }
+
+      .progress-fill.bike-progress {
+        background: linear-gradient(90deg, var(--success-color), #10b981);
       }
 
       .capacity-container {
         background: var(--card-background);
-        padding: 1.5rem;
+        padding: 1.25rem;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-sm);
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
       }
 
       .capacity-header {
@@ -140,25 +235,40 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
       .capacity-header span {
         font-weight: 500;
         color: var(--text-primary);
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
+      }
+
+      .capacity-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        font-size: clamp(0.75rem, 2vw, 0.875rem);
+        color: var(--text-secondary);
       }
 
       .progress-bar {
         width: 100%;
-        height: 8px;
+        height: 10px;
         background-color: #e2e8f0;
-        border-radius: 4px;
+        border-radius: 5px;
         overflow: hidden;
       }
 
       .progress-fill {
         height: 100%;
-        background-color: var(--primary-color);
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         transition: width 0.3s ease;
+        border-radius: 5px;
       }
 
       .lot-full {
@@ -170,6 +280,7 @@
         border-radius: var(--border-radius);
         color: var(--danger-color);
         font-weight: 500;
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
       }
 
       .lot-full i {
@@ -178,32 +289,186 @@
 
       .video-container {
         background: var(--card-background);
-        padding: 1.5rem;
+        padding: 1.25rem;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow-sm);
       }
 
       .video-feed {
         width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
+        max-width: 100%;
+        height: auto;
         display: block;
         border-radius: var(--border-radius);
+        aspect-ratio: 16/9;
+        object-fit: cover;
+        background-color: #f1f5f9;
       }
 
-      @media (max-width: 768px) {
+      /* Mobile First Responsive Design */
+      @media (max-width: 480px) {
         .container {
+          padding: 0.75rem;
+        }
+
+        .header {
           padding: 1rem;
+          text-align: center;
+          flex-direction: column;
+        }
+
+        .header-left {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.75rem;
+        }
+
+        .university-logo {
+          width: 50px;
+          height: 50px;
         }
 
         .dashboard-grid {
           grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .vehicle-card {
+          padding: 1.25rem;
+        }
+
+        .card-header {
+          gap: 0.75rem;
+        }
+
+        .vehicle-card .icon {
+          width: 40px;
+          height: 40px;
+        }
+
+        .vehicle-card .icon i {
+          font-size: 1.25rem;
+        }
+
+        .card-stats {
+          gap: 0.5rem;
+        }
+
+        .stat-row {
+          padding: 0.375rem 0;
+        }
+
+        .capacity-container,
+        .video-container {
+          padding: 1rem;
+        }
+
+        .capacity-header {
+          text-align: center;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .capacity-details {
+          justify-content: center;
+          text-align: center;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+      }
+
+      @media (min-width: 481px) and (max-width: 768px) {
+        .container {
+          padding: 0.875rem;
+        }
+
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+          gap: 1.25rem;
+        }
+
+        .header h1 {
+          font-size: 1.375rem;
+        }
+      }
+
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .container {
+          padding: 1.25rem;
+        }
+
+        .dashboard-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+        }
+      }
+
+      @media (min-width: 1025px) {
+        .container {
+          padding: 2rem;
+        }
+
+        .dashboard-grid {
+          gap: 2rem;
+        }
+
+        .capacity-container,
+        .video-container {
+          padding: 1.5rem;
+        }
+      }
+
+      /* Landscape orientation adjustments */
+      @media (orientation: landscape) and (max-height: 500px) {
+        .container {
+          padding: 0.5rem;
         }
 
         .header {
-          flex-direction: column;
-          gap: 1rem;
-          text-align: center;
+          padding: 0.75rem;
+        }
+
+        .header-left {
+          gap: 0.5rem;
+        }
+
+        .university-logo {
+          width: 40px;
+          height: 40px;
+        }
+
+        .vehicle-card {
+          min-height: 80px;
+          padding: 1rem;
+        }
+
+        .video-feed {
+          max-height: 250px;
+        }
+      }
+
+      /* High DPI displays */
+      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .vehicle-card .icon i {
+          transform: scale(0.95);
+        }
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background-color: #0f172a;
+          --card-background: #1e293b;
+          --text-primary: #f8fafc;
+          --text-secondary: #94a3b8;
+        }
+
+        .progress-bar {
+          background-color: #334155;
+        }
+
+        .lot-full {
+          background-color: #3c2626;
         }
       }
     </style>
@@ -211,7 +476,13 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>Parking Management System</h1>
+        <div class="header-left">
+          <img src="culogo.png" alt="Christ University Logo" class="university-logo">
+          <div class="header-text">
+            <h1>R&D Block Parking Monitoring<h1>
+            <p class="university-name">Christ (Deemed to be University)</p>
+          </div>
+        </div>
         <div class="status">
           <i class="fas fa-circle"></i>
           System Active
@@ -219,33 +490,68 @@
       </div>
 
       <div class="dashboard-grid">
-        <div class="stat-card">
-          <div class="icon cars">
-            <i class="fas fa-car"></i>
+        <div class="vehicle-card">
+          <div class="card-header">
+            <div class="icon cars">
+              <i class="fas fa-car"></i>
+            </div>
+            <h3>Four Wheeler</h3>
           </div>
-          <h3>Cars Detected</h3>
-          <div class="count" id="car-count">0</div>
+          <div class="card-stats">
+            <div class="stat-row">
+              <span class="stat-label">Filled Spots:</span>
+              <span class="stat-value" id="car-filled">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Free Spots:</span>
+              <span class="stat-value" id="car-free">40</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Total Spots:</span>
+              <span class="stat-value">40</span>
+            </div>
+          </div>
+          <div class="card-progress">
+            <div class="progress-header">
+              <span>Occupancy</span>
+              <span id="car-percentage">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill car-progress" id="car-progress-bar"></div>
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="icon bikes">
-            <i class="fas fa-motorcycle"></i>
+        
+        <div class="vehicle-card">
+          <div class="card-header">
+            <div class="icon bikes">
+              <i class="fas fa-motorcycle"></i>
+            </div>
+            <h3>Two Wheeler</h3>
           </div>
-          <h3>Bikes Detected</h3>
-          <div class="count" id="bike-count">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="icon filled">
-            <i class="fas fa-parking"></i>
+          <div class="card-stats">
+            <div class="stat-row">
+              <span class="stat-label">Filled Spots:</span>
+              <span class="stat-value" id="bike-filled">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Free Spots:</span>
+              <span class="stat-value" id="bike-free">300</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Total Spots:</span>
+              <span class="stat-value">300</span>
+            </div>
           </div>
-          <h3>Filled Spaces</h3>
-          <div class="count" id="filled-count">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="icon free">
-            <i class="fas fa-square-parking"></i>
+          <div class="card-progress">
+            <div class="progress-header">
+              <span>Occupancy</span>
+              <span id="bike-percentage">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill bike-progress" id="bike-progress-bar"></div>
+            </div>
           </div>
-          <h3>Free Spaces</h3>
-          <div class="count" id="free-count">0</div>
         </div>
       </div>
 
@@ -253,6 +559,11 @@
         <div class="capacity-header">
           <span>Lot Capacity Usage</span>
           <span id="capacity-percentage">0%</span>
+        </div>
+        <div class="capacity-details">
+          <span>Car Spots: <span id="car-capacity">0/40</span></span>
+          <span>Bike Spots: <span id="bike-capacity">0/300</span></span>
+          <span>Total: <span id="total-capacity">0/340</span></span>
         </div>
         <div class="progress-bar">
           <div class="progress-fill" id="capacity-bar"></div>
@@ -269,6 +580,7 @@
           src="{{ url_for('video_feed') }}"
           class="video-feed"
           alt="Video Feed"
+          loading="lazy"
         />
       </div>
     </div>
@@ -279,23 +591,59 @@
           url: "/get_counts",
           method: "GET",
           success: function (data) {
-            $("#car-count").text(data.cars);
-            $("#bike-count").text(data.bikes);
+            const CAR_CAPACITY = 40;
+            const BIKE_CAPACITY = 300;
+            const TOTAL_CAPACITY = CAR_CAPACITY + BIKE_CAPACITY;
 
-            const filledSpaces = data.cars + data.bikes;
-            const TOTAL_CAPACITY = 10;
+            const cars = Math.min(data.cars, CAR_CAPACITY);
+            const bikes = Math.min(data.bikes, BIKE_CAPACITY);
+            const filledSpaces = cars + bikes;
             const freeSpaces = TOTAL_CAPACITY - filledSpaces;
 
-            $("#filled-count").text(filledSpaces);
-            $("#free-count").text(freeSpaces);
+            // Update car card
+            const carFreeSpots = CAR_CAPACITY - cars;
+            $("#car-filled").text(cars);
+            $("#car-free").text(carFreeSpots);
+            
+            const carPercentage = (cars / CAR_CAPACITY) * 100;
+            $("#car-percentage").text(Math.round(carPercentage) + "%");
+            $("#car-progress-bar").css("width", carPercentage + "%");
 
-            const capacityPercentage = (filledSpaces / TOTAL_CAPACITY) * 100;
-            $("#capacity-percentage").text(
-              Math.round(capacityPercentage) + "%"
-            );
-            $("#capacity-bar").css("width", capacityPercentage + "%");
+            // Update bike card
+            const bikeFreeSpots = BIKE_CAPACITY - bikes;
+            $("#bike-filled").text(bikes);
+            $("#bike-free").text(bikeFreeSpots);
+            
+            const bikePercentage = (bikes / BIKE_CAPACITY) * 100;
+            $("#bike-percentage").text(Math.round(bikePercentage) + "%");
+            $("#bike-progress-bar").css("width", bikePercentage + "%");
 
-            $("#lot-full-alert").toggle(freeSpaces === 0);
+            // Update overall capacity details
+            $("#car-capacity").text(`${cars}/${CAR_CAPACITY}`);
+            $("#bike-capacity").text(`${bikes}/${BIKE_CAPACITY}`);
+            $("#total-capacity").text(`${filledSpaces}/${TOTAL_CAPACITY}`);
+
+            // Update overall progress bar
+            const totalPercentage = (filledSpaces / TOTAL_CAPACITY) * 100;
+            $("#capacity-percentage").text(Math.round(totalPercentage) + "%");
+            $("#capacity-bar").css("width", totalPercentage + "%");
+
+            // Show/hide full lot alert
+            const isCarLotFull = cars >= CAR_CAPACITY;
+            const isBikeLotFull = bikes >= BIKE_CAPACITY;
+            const isTotalLotFull = filledSpaces >= TOTAL_CAPACITY;
+            
+            $("#lot-full-alert").toggle(isTotalLotFull || isCarLotFull || isBikeLotFull);
+            
+            if (isTotalLotFull) {
+              $("#lot-full-alert").html('<i class="fas fa-exclamation-circle"></i> Parking lot is completely full!');
+            } else if (isCarLotFull && isBikeLotFull) {
+              $("#lot-full-alert").html('<i class="fas fa-exclamation-circle"></i> Both car and bike sections are full!');
+            } else if (isCarLotFull) {
+              $("#lot-full-alert").html('<i class="fas fa-exclamation-circle"></i> Four wheeler parking section is full!');
+            } else if (isBikeLotFull) {
+              $("#lot-full-alert").html('<i class="fas fa-exclamation-circle"></i> Two wheeler parking section is full!');
+            }
           },
           error: function () {
             console.log("Error fetching counts");
@@ -303,8 +651,23 @@
         });
       }
 
+      // Update dashboard every second
       setInterval(updateDashboard, 1000);
+      
+      // Initial load
       updateDashboard();
+
+      // Handle window resize for better responsiveness
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          // Force a repaint for smooth transitions
+          document.body.style.display = 'none';
+          document.body.offsetHeight;
+          document.body.style.display = '';
+        }, 250);
+      });
     </script>
   </body>
 </html>
