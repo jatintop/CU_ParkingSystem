@@ -1,10 +1,10 @@
 Flask
-torch
+torch 
+torchvision 
+torchaudio --index-url https://download.pytorch.org/whl/cu118
 opencv-python
 ultralytics
 scikit-image
 filterpy
 easyocr
 fastapi[standard]
-pygame
-pyav
