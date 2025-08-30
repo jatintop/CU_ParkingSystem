@@ -6,6 +6,8 @@ opencv-python
 ultralytics
 scikit-image
 filterpy
-easyocr
 fastapi[standard]
 toml
+psutil
+uvicorn[standard]
+numpy

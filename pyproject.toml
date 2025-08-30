@@ -1,16 +1,26 @@
 [tool.parking_system]
 # rtsp_link = "rtsp://smartparking:parking@2025@10.4.10.18?tcp" # Commented out for local video testing
-max_retry_attempts = 5
-base_retry_delay = 2
+max_retry_attempts = 3
+base_retry_delay = 1
 processing_scale = 0.5
 target_width = 1280
 target_height = 720
-process_every_n_frames = 5
+process_every_n_frames = 3
 vehicle_model_path = "models/yolo11n.pt"
 license_plate_model_path = "models/license_plate_detector.pt"
 video_path = "data/bikeincarout.mp4" # Keep for local video testing if needed
 midline = 360
 vehicle_classes = [2, 3, 5, 7] # Car, Motorcycle, Bus, Truck
-sort_max_age = 3
-sort_min_hits = 3
+sort_max_age = 5
+sort_min_hits = 2
 sort_iou_threshold = 0.3
+
+# New optimization parameters
+max_detections = 30
+confidence_threshold = 0.4
+iou_threshold = 0.5
+target_fps = 30
+jpeg_quality = 85
+frame_buffer_size = 3
+max_consecutive_failures = 10
+performance_update_interval = 1.0
