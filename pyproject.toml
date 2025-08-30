@@ -1,5 +1,5 @@
 [tool.parking_system]
-rtsp_link = "rtsp://smartparking:parking@2025@10.4.10.18?tcp"
+# rtsp_link = "rtsp://smartparking:parking@2025@10.4.10.18?tcp" # Commented out for local video testing
 max_retry_attempts = 5
 base_retry_delay = 2
 processing_scale = 0.5

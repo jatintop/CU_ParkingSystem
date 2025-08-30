@@ -1,13 +1,27 @@
 from flask import Flask, render_template, Response, jsonify
-from flask import Flask, render_template, Response, jsonify
 import cv2
 import logging
 import threading
+import os
+import time
 
 from config.config import settings
 from core.video_processor import SmartParkingProcessor
 
-logging.basicConfig(level=logging.INFO)
+# Ensure logs directory exists
+log_dir = 'logs'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# Configure logging to file and console
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(log_dir, 'app.log')),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)

@@ -67,46 +67,58 @@ class SmartParkingProcessor:
 
         while self.connection_retry_count < self.max_retry_attempts:
             try:
-                logger.info(f"Attempting to connect to RTSP stream... (Attempt {self.connection_retry_count + 1})")
+                if self.rtsp_link:
+                    logger.info(f"Attempting to connect to RTSP stream... (Attempt {self.connection_retry_count + 1})")
+                else:
+                    logger.info(f"Attempting to open local video file: {self.video_path}")
 
                 if self.cap is not None:
                     self.cap.release()
                     self.cap = None
 
-                connection_configs = [
-                    {
-                        'url': self.rtsp_link,
-                        'backend': cv2.CAP_FFMPEG,
-                        'props': {
-                            cv2.CAP_PROP_BUFFERSIZE: 1,
-                            cv2.CAP_PROP_FRAME_WIDTH: self.target_width,
-                            cv2.CAP_PROP_FRAME_HEIGHT: self.target_height,
-                            cv2.CAP_PROP_FPS: 15,
-                            cv2.CAP_PROP_FOURCC: cv2.VideoWriter_fourcc('H', '2', '6', '4')
+                if self.rtsp_link:
+                    connection_configs = [
+                        {
+                            'url': self.rtsp_link,
+                            'backend': cv2.CAP_FFMPEG,
+                            'props': {
+                                cv2.CAP_PROP_BUFFERSIZE: 1,
+                                cv2.CAP_PROP_FRAME_WIDTH: self.target_width,
+                                cv2.CAP_PROP_FRAME_HEIGHT: self.target_height,
+                                cv2.CAP_PROP_FPS: 15,
+                                cv2.CAP_PROP_FOURCC: cv2.VideoWriter_fourcc('H', '2', '6', '4')
+                            }
+                        },
+                        {
+                            'url': self.rtsp_link.replace('?tcp', ''),
+                            'backend': cv2.CAP_FFMPEG,
+                            'props': {
+                                cv2.CAP_PROP_BUFFERSIZE: 2,
+                                cv2.CAP_PROP_FRAME_WIDTH: self.target_width,
+                                cv2.CAP_PROP_FRAME_HEIGHT: self.target_height,
+                            }
+                        },
+                        {
+                            'url': self.rtsp_link,
+                            'backend': cv2.CAP_ANY,
+                            'props': {
+                                cv2.CAP_PROP_BUFFERSIZE: 1,
+                            }
                         }
-                    },
-                    {
-                        'url': self.rtsp_link.replace('?tcp', ''),
-                        'backend': cv2.CAP_FFMPEG,
-                        'props': {
-                            cv2.CAP_PROP_BUFFERSIZE: 2,
-                            cv2.CAP_PROP_FRAME_WIDTH: self.target_width,
-                            cv2.CAP_PROP_FRAME_HEIGHT: self.target_height,
+                    ]
+                else: # Use local video file
+                    connection_configs = [
+                        {
+                            'url': self.video_path,
+                            'backend': cv2.CAP_ANY,
+                            'props': {} # No specific props for local file usually
                         }
-                    },
-                    {
-                        'url': self.rtsp_link,
-                        'backend': cv2.CAP_ANY,
-                        'props': {
-                            cv2.CAP_PROP_BUFFERSIZE: 1,
-                        }
-                    }
-                ]
+                    ]
 
                 for i, config in enumerate(connection_configs):
                     try:
                         logger.info(f"Trying connection method {i+1}: {config['url']}")
-                        self.cap = cv2.VideoCapture(config['url'], config['backend'])
+                        self.cap = cv2.VideoCapture(config['url'], config['backend'] if 'backend' in config else cv2.CAP_ANY)
 
                         if self.cap is None:
                             logger.warning(f"Failed to create VideoCapture object for method {i+1}")
@@ -119,11 +131,13 @@ class SmartParkingProcessor:
                                 logger.warning(f"Could not set property {prop}: {prop_e}")
 
                         if not self.cap.isOpened():
-                            logger.warning(f"VideoCapture not opened for method {i+1}")
+                            logger.warning(f"VideoCapture not opened for method {i+1}. Releasing and trying next method.")
                             if self.cap is not None:
                                 self.cap.release()
                                 self.cap = None
                             continue
+                        else:
+                            logger.info(f"VideoCapture successfully opened for method {i+1}.")
 
                         logger.info(f"Testing connection stability for method {i+1}...")
                         successful_reads = 0
@@ -136,6 +150,7 @@ class SmartParkingProcessor:
                                 if frame_mean > 5:
                                     successful_reads += 1
                                     test_frames.append(test_frame)
+                                    logger.debug(f"  Test read {test_attempt + 1}: SUCCESS (mean: {frame_mean:.1f})")
                                 else:
                                     logger.warning(f"  Test read {test_attempt + 1}: Frame too dark (mean: {frame_mean:.1f})")
                             else:
@@ -153,31 +168,39 @@ class SmartParkingProcessor:
                                 _, buffer = cv2.imencode('.jpg', sample_frame, [cv2.IMWRITE_JPEG_QUALITY, 92])
                                 if buffer is not None:
                                     self.latest_frame_bytes = buffer.tobytes()
+                            logger.info(f"initialize_camera returning True for method {i+1}")
                             return True
                         else:
-                            logger.warning(f"Method {i+1} failed stability test: {successful_reads}/8 successful reads")
+                            logger.warning(f"Method {i+1} failed stability test: {successful_reads}/8 successful reads. Releasing and trying next method.")
 
                     except Exception as e:
-                        logger.warning(f"Connection method {i+1} failed: {str(e)}")
+                        logger.warning(f"Connection method {i+1} failed: {str(e)}. Releasing and trying next method.")
                     finally:
                         if self.cap is not None and not self.camera_connected:
                             self.cap.release()
                             self.cap = None
 
-                raise Exception("All connection methods failed")
+                logger.error("All connection methods failed for initialize_camera.")
+                if self.rtsp_link:
+                    logger.error("All connection methods failed for initialize_camera.")
+                    raise Exception("All connection methods failed")
+                else:
+                    logger.error(f"Failed to open local video file: {self.video_path}")
+                    return False # For local video, no retry loop here
 
             except Exception as e:
-                logger.error(f"Camera connection failed: {str(e)}")
+                logger.error(f"Camera/Video connection failed in initialize_camera: {str(e)}")
                 self.connection_retry_count += 1
                 self.camera_connected = False
 
-                if self.connection_retry_count < self.max_retry_attempts:
-                    logger.info(f"Retrying in {retry_delay} seconds...")
+                if self.connection_retry_count < self.max_retry_attempts and self.rtsp_link: # Only retry for RTSP
+                    logger.info(f"Retrying initialize_camera in {retry_delay} seconds...")
                     time.sleep(retry_delay)
                     retry_delay = min(retry_delay * 1.5, 10)
                 else:
-                    logger.error("Max retry attempts reached. Camera connection failed.")
+                    logger.error("Max retry attempts reached or local video failed. Returning False.")
                     return False
+        logger.info("initialize_camera returning False after loop.")
         return False
 
     def reconnect_camera(self):
@@ -200,7 +223,7 @@ class SmartParkingProcessor:
     def process_single_frame(self, frame):
         """Processes a single frame for detection, tracking, and OCR, and draws overlays."""
         # Crop frame as per original logic
-        # frame = frame[150:800, :] # This cropping should be handled by the caller if needed
+        frame = frame[150:800, :]
         frame_height, frame_width, _ = frame.shape
 
         detections = self.detector.detect_vehicles(frame)
@@ -322,27 +345,44 @@ class SmartParkingProcessor:
                 current_time = time.time()
 
                 if self.cap is None or not self.cap.isOpened() or not self.camera_connected:
-                    logger.warning("Camera not connected. Attempting reconnection...")
-                    if not self.reconnect_camera():
-                        placeholder = self.create_placeholder_frame("Camera disconnected - Retrying...")
-                        _, buffer = cv2.imencode('.jpg', placeholder)
-                        if buffer is not None:
-                            with self.lock:
-                                self.latest_frame_bytes = buffer.tobytes()
-                        time.sleep(1)
-                        continue
+                    if self.rtsp_link:
+                        logger.warning("Camera not connected. Attempting reconnection...")
+                        if not self.reconnect_camera():
+                            placeholder = self.create_placeholder_frame("Camera disconnected - Retrying...")
+                            _, buffer = cv2.imencode('.jpg', placeholder)
+                            if buffer is not None:
+                                with self.lock:
+                                    self.latest_frame_bytes = buffer.tobytes()
+                            time.sleep(1)
+                            continue
+                    else: # Local video, no reconnection logic needed, just restart if it failed
+                        logger.error(f"Local video file {self.video_path} is not open. Attempting to re-initialize.")
+                        if not self.initialize_camera():
+                            placeholder = self.create_placeholder_frame("Local video not found or corrupted.")
+                            _, buffer = cv2.imencode('.jpg', placeholder)
+                            if buffer is not None:
+                                with self.lock:
+                                    self.latest_frame_bytes = buffer.tobytes()
+                            time.sleep(1)
+                            continue
 
                 ret, frame = self.cap.read()
                 self.frame_skip_counter += 1
+                logger.debug(f"Frame read attempt: ret={ret}, frame_size={frame.size if frame is not None else 'None'}")
 
                 if not ret or frame is None or frame.size == 0:
                     consecutive_failures += 1
                     if current_time - last_log_time > 5:
-                        logger.warning(f"Frame read failed (consecutive failures: {consecutive_failures})")
+                        logger.warning(f"Frame read failed in _process_frames_loop (consecutive failures: {consecutive_failures}). {'Looping video.' if not self.rtsp_link else 'Attempting reconnection.'}")
                         last_log_time = current_time
 
-                    if consecutive_failures >= max_consecutive_failures:
-                        logger.error("Too many consecutive frame failures. Reconnecting camera...")
+                    if not self.rtsp_link: # If local video, loop it
+                        self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                        logger.info(f"Local video {self.video_path} ended, looping.")
+                        consecutive_failures = 0 # Reset failures for looping video
+                        continue
+                    elif consecutive_failures >= max_consecutive_failures: # Only for RTSP
+                        logger.error("Too many consecutive frame failures in _process_frames_loop. Reconnecting camera...")
                         self.camera_connected = False
                         if not self.reconnect_camera():
                             time.sleep(2)
@@ -353,13 +393,14 @@ class SmartParkingProcessor:
                     if buffer is not None:
                         with self.lock:
                             self.latest_frame_bytes = buffer.tobytes()
+                        logger.debug("Updated latest_frame_bytes with placeholder due to read failure.")
                     time.sleep(0.05)
                     continue
 
                 frame_mean = np.mean(frame)
                 if frame_mean < 5:
                     consecutive_failures += 1
-                    logger.warning(f"Frame appears invalid (mean pixel value: {frame_mean:.1f})")
+                    logger.warning(f"Frame appears invalid (mean pixel value: {frame_mean:.1f}). Consecutive failures: {consecutive_failures}")
                     continue
 
                 consecutive_failures = 0
@@ -367,6 +408,7 @@ class SmartParkingProcessor:
 
                 frame = self.resize_frame_optimized(frame)
                 if frame is None:
+                    logger.warning("Resized frame is None, skipping processing.")
                     continue
 
                 self.frame_buffer.append(frame.copy())
@@ -376,24 +418,24 @@ class SmartParkingProcessor:
                 display_frame = frame.copy() # Frame to draw on
 
                 if should_process_yolo and len(self.frame_buffer) > 0:
-                    process_frame = cv2.resize(frame,
-                                             (int(self.target_width * self.processing_scale),
-                                              int(self.target_height * self.processing_scale)),
-                                             interpolation=cv2.INTER_LINEAR)
                     try:
                         processed_display_frame = self.process_single_frame(display_frame)
                         if processed_display_frame is not None:
                             display_frame = processed_display_frame
+                        logger.debug("Frame processed by process_single_frame.")
                     except Exception as e:
-                        logger.error(f"Error in YOLO processing: {str(e)}")
+                        logger.error(f"Error in YOLO processing within _process_frames_loop: {str(e)}")
 
                 ret_encode, buffer = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 92])
                 if ret_encode and buffer is not None:
                     with self.lock:
                         self.latest_frame_bytes = buffer.tobytes()
+                    logger.debug("Updated latest_frame_bytes with processed frame.")
+                else:
+                    logger.error("Failed to encode processed frame to JPEG.")
 
             except Exception as e:
-                logger.error(f"Error processing frame: {str(e)}")
+                logger.error(f"Unhandled error in _process_frames_loop: {str(e)}")
                 consecutive_failures += 1
                 time.sleep(0.02)
 
